@@ -1,0 +1,6 @@
+---
+# defaults file for ocp4-acme-certs
+certs_root_dir: "{{ playbook_dir }}/../certs"
+acme_server: https://acme-v02.api.letsencrypt.org/directory
+
+k8s_validate_certs: true

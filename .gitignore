@@ -1,0 +1,4 @@
+*.sw?
+certs/
+ansible/local-vars.yaml
+cluster.yml

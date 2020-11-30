@@ -1,0 +1,18 @@
+---
+- name: Configure global vars
+  include: set-global-facts.yml
+
+- name: Issue acme certificate requests
+  command: "{{ certs_root_dir }}/acme.sh/acme.sh --issue -d {{ le_api }} -d {{ le_wildcard }} --dns dns_{{ dns_provider }} --server {{ acme_server }} --challenge-alias {{ challenge_alias }}"
+  environment:
+    DNSimple_OAUTH_TOKEN: "{{ dns_dnsimple_oauth_token }}"
+  ignore_errors: yes
+
+- name: Create certificates directory if it does not exist
+  file:
+    path: "{{ certs_root_dir }}/certificates"
+    state: directory
+    mode: '0755'
+
+- name: Copy certificate requests
+  command: "{{ certs_root_dir }}/acme.sh/acme.sh --install-cert -d {{ le_api }} -d {{ le_wildcard }} --key-file {{ certs_root_dir }}/certificates/key.pem --fullchain-file {{ certs_root_dir }}/certificates//fullchain.pem --ca-file {{ certs_root_dir }}/certificates//ca.cer"

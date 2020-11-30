@@ -1,0 +1,8 @@
+public_domain: bikini-bottom.com
+cluster_name: patrick-star
+
+dns_provider: dnsimple
+dns_dnsimple_oauth_token: someoauthtokentograbfromdnsimple
+
+# acme_server: https://acme-staging-v02.api.letsencrypt.org/directory
+challenge_alias: bikini-bottom.com

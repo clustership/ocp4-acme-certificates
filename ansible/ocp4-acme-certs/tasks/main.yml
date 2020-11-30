@@ -1,0 +1,5 @@
+---
+# tasks file for ocp4-acme-certs
+- include: install-acme.yml
+- include: certificate-generate.yml
+- include: certificate-install.yml

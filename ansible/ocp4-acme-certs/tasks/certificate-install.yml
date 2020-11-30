@@ -1,0 +1,99 @@
+---
+- name: Configure global vars
+  include: set-global-facts.yml
+
+- name: Configure certs vars
+  set_fact:
+    certificate_fullchain: "{{ certs_root_dir }}/certificates/fullchain.pem"
+    certificate_key: "{{ certs_root_dir }}/certificates/key.pem"
+
+- name: Check certificates exist
+  stat:
+    path: "{{ certificate_fullchain }}"
+  register: crt
+- name: Check ssl key exist
+  stat:
+    path: "{{ certificate_key }}"
+  register: key
+
+# - name: Debug kubeconfig
+#   debug:
+#     msg: "{{ openshift_install_dir }}/auth/kubeconfig"
+
+- block:
+  - name: Log in to OpenShift cluster to get auth token
+    k8s_auth:
+      host: "https://api.{{ le_api }}:6443"
+      username: "{{ k8s_username }}"
+      password: "{{ k8s_password }}"
+      validate_certs: "{{ k8s_validate_certs }}"
+    register: k8s_auth_results
+
+  - name: Install certificates
+    block:
+      - name: Create secret with certificates for openshift-ingress
+        k8s:
+          state: present
+          api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          validate_certs: "{{ k8s_validate_certs }}"
+          definition:
+            apiVersion: v1
+            kind: Secret
+            data:
+              tls.crt: "{{  lookup('file',certificate_fullchain, rstrip=false) | b64encode }}"
+              tls.key: "{{  lookup('file',certificate_key, rstrip=false)  | b64encode }}"
+            metadata:
+              name: letsencrypt-router-certs
+              namespace: openshift-ingress
+            type: kubernetes.io/tls
+      - name: Patch ingresscontroller/default
+        k8s:
+          state: present
+          api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          validate_certs: "{{ k8s_validate_certs }}"
+          merge_type: merge
+          definition:
+            apiVersion: operator.openshift.io/v1
+            kind: IngressController
+            metadata:
+              name: default
+              namespace: openshift-ingress-operator
+            spec:
+              defaultCertificate:
+                name: letsencrypt-router-certs
+      # Hot fix, remove of openshift api cert installation because of 
+      #          https://github.com/RedHat-EMEA-SSA-Team/hetzner-ocp4/issues/117
+      - name: Create secret with certificates for openshift api
+        k8s:
+          state: present
+          api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          validate_certs: "{{ k8s_validate_certs }}"
+          definition:
+            apiVersion: v1
+            kind: Secret
+            data:
+              tls.crt: "{{  lookup('file',certificate_fullchain, rstrip=false) | b64encode }}"
+              tls.key: "{{  lookup('file',certificate_key, rstrip=false)  | b64encode }}"
+            metadata:
+              name: letsencrypt-certs
+              namespace: openshift-config
+            type: kubernetes.io/tls
+      - name: Patch api server config
+        k8s:
+          state: present
+          api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          validate_certs: "{{ k8s_validate_certs }}"
+          merge_type: merge
+          definition:
+            apiVersion: config.openshift.io/v1
+            kind: APIServer
+            metadata:
+              name: cluster
+            spec:
+              servingCerts:
+                namedCertificates:
+                - names:
+                  - "api.{{ le_api }}"
+                  servingCertificate:
+                    name: letsencrypt-certs
+    when: crt.stat.exists == True and key.stat.exists == True
