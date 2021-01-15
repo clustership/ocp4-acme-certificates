@@ -11,6 +11,7 @@
   stat:
     path: "{{ certificate_fullchain }}"
   register: crt
+
 - name: Check ssl key exist
   stat:
     path: "{{ certificate_key }}"
@@ -28,13 +29,14 @@
       password: "{{ k8s_password }}"
       validate_certs: "{{ k8s_validate_certs }}"
     register: k8s_auth_results
+    when: k8s_username is defined and k8s_password is defined
 
   - name: Install certificates
     block:
       - name: Create secret with certificates for openshift-ingress
         k8s:
           state: present
-          api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          # api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
           validate_certs: "{{ k8s_validate_certs }}"
           definition:
             apiVersion: v1
@@ -46,10 +48,11 @@
               name: letsencrypt-router-certs
               namespace: openshift-ingress
             type: kubernetes.io/tls
+
       - name: Patch ingresscontroller/default
         k8s:
           state: present
-          api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          # api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
           validate_certs: "{{ k8s_validate_certs }}"
           merge_type: merge
           definition:
@@ -66,7 +69,7 @@
       - name: Create secret with certificates for openshift api
         k8s:
           state: present
-          api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          # api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
           validate_certs: "{{ k8s_validate_certs }}"
           definition:
             apiVersion: v1
@@ -78,10 +81,11 @@
               name: letsencrypt-certs
               namespace: openshift-config
             type: kubernetes.io/tls
+
       - name: Patch api server config
         k8s:
           state: present
-          api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          # api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
           validate_certs: "{{ k8s_validate_certs }}"
           merge_type: merge
           definition:
@@ -97,3 +101,9 @@
                   servingCertificate:
                     name: letsencrypt-certs
     when: crt.stat.exists == True and key.stat.exists == True
+
+  module_defaults:
+    group/k8s:
+      host: "https://api.{{ cluster_name }}.{{ public_domain }}:6443"
+      validate_certs: "{{ k8s_validate_certs }}"
+      kubeconfig: "{{ kubeconfig }}"

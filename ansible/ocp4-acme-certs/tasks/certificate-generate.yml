@@ -4,8 +4,7 @@
 
 - name: Issue acme certificate requests
   command: "{{ certs_root_dir }}/acme.sh/acme.sh --issue -d {{ le_api }} -d {{ le_wildcard }} --dns dns_{{ dns_provider }} --server {{ acme_server }} --challenge-alias {{ challenge_alias }}"
-  environment:
-    DNSimple_OAUTH_TOKEN: "{{ dns_dnsimple_oauth_token }}"
+  environment: "{{ dns_provider_env }}"
   ignore_errors: yes
 
 - name: Create certificates directory if it does not exist
