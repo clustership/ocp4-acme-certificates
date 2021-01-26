@@ -24,7 +24,7 @@
 - block:
   - name: Log in to OpenShift cluster to get auth token
     k8s_auth:
-      host: "https://api.{{ le_api }}:6443"
+      host: "https://{{ le_api }}:6443"
       username: "{{ k8s_username }}"
       password: "{{ k8s_password }}"
       validate_certs: "{{ k8s_validate_certs }}"
@@ -97,7 +97,7 @@
               servingCerts:
                 namedCertificates:
                 - names:
-                  - "api.{{ le_api }}"
+                  - "{{ le_api }}"
                   servingCertificate:
                     name: letsencrypt-certs
     when: crt.stat.exists == True and key.stat.exists == True

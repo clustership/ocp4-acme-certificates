@@ -1,5 +1,5 @@
 ---
 - name: Configure global vars
   set_fact:
-    le_api: "{{ cluster_name }}.{{ public_domain }}"
+    le_api: "api.{{ cluster_name }}.{{ public_domain }}"
     le_wildcard: "*.apps.{{ cluster_name }}.{{ public_domain }}"
