@@ -1,9 +1,20 @@
 # Install letsencrypt certs on OpenShift with challenge-alias support
 
+# Configure
+
+
+Create a suitable cluster.yml from cluster-example.yml
+
+```bash
+cp cluster-example.yml cluster.yml
+vim cluster.yml
+#
+# edit to fit your configuration.
+#
+```
 
 ## Run it
 
-Create a suitable cluster.yml from cluster-example.yml
 
 ```bash
 cd ansible
