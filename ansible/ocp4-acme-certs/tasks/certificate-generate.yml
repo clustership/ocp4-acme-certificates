@@ -2,10 +2,17 @@
 - name: Configure global vars
   include: set-global-facts.yml
 
-- name: Issue acme certificate requests
+- name: Issue acme certificate requests with challenge_alias
   command: "{{ certs_root_dir }}/acme.sh/acme.sh --issue -d {{ le_api }} -d {{ le_wildcard }} --dns dns_{{ dns_provider }} --server {{ acme_server }} --challenge-alias {{ challenge_alias }}"
   environment: "{{ dns_provider_env }}"
   ignore_errors: yes
+  when: challenge_alias is defined
+
+- name: Issue acme certificate requests
+  command: "{{ certs_root_dir }}/acme.sh/acme.sh --issue -d {{ le_api }} -d {{ le_wildcard }} --dns dns_{{ dns_provider }} --server {{ acme_server }}"
+  environment: "{{ dns_provider_env }}"
+  ignore_errors: yes
+  when: challenge_alias is not defined
 
 - name: Create certificates directory if it does not exist
   file:
