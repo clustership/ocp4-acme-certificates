@@ -5,7 +5,14 @@ dns_provider: dnsimple
 dns_provider_env:
   DNSimple_OAUTH_TOKEN: someoauthtokentograbfromdnsimple
 
-
+#
+# AWS
+#
+# dns_provider: aws
+# dns_provider_env:
+#   AWS_ACCESS_KEY_ID="sdfsdfsdfljlbjkljlkjsdfoiwje"
+#   AWS_SECRET_ACCESS_KEY="xxxxxxx"
+#
 #
 # OVH
 #
