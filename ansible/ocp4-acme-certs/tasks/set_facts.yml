@@ -1,0 +1,24 @@
+---
+- block:
+  - name: Set api and ingress domain if they are not configured
+    command: "oc whoami --show-server | cut -f 2 -d ':' | cut -f 3 -d '/' | sed 's/-api././'"
+    register: api_result
+    when: le_api is not defined
+
+  - name: defined le_api
+    set_fact:
+      le_api: "{{ api_result.stdout }}"
+    when le_api is not defined
+
+  - name: Set api and ingress domain if they are not configured
+    command: "oc whoami --show-server | cut -f 2 -d ':' | cut -f 3 -d '/' | sed 's/-api././'"
+    register: api_result
+    when: le_api is not defined
+
+  - name: defined le_api
+    set_fact:
+      le_api: "{{ api_result.stdout }}"
+    when le_api is not defined
+
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"

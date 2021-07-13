@@ -37,6 +37,7 @@
         k8s:
           state: present
           # api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+          kubeconfig: "{{ kubeconfig }}"
           validate_certs: "{{ k8s_validate_certs }}"
           definition:
             apiVersion: v1
@@ -81,6 +82,7 @@
               name: letsencrypt-certs
               namespace: openshift-config
             type: kubernetes.io/tls
+        when: True # kubeconfig modified
 
       - name: Patch api server config
         k8s:
@@ -100,6 +102,7 @@
                   - "{{ le_api }}"
                   servingCertificate:
                     name: letsencrypt-certs
+        when: True # kubeconfig modified
     when: crt.stat.exists == True and key.stat.exists == True
 
   module_defaults:

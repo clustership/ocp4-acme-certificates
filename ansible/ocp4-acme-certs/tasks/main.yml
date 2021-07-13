@@ -1,9 +1,9 @@
 ---
 # tasks file for ocp4-acme-certs
-- name: Install required package
-  yum:
-    name: python3-openshift
-    state: present
+# - name: Install required package
+#   yum:
+#     name: python3-openshift
+#     state: present
 
 - include: install-acme.yml
 - include: certificate-generate.yml

@@ -9,6 +9,8 @@
       tasks_from: main.yml
     vars:
       kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
+#      k8s_username: xymox
+#      k8s_password: "bobleponge212!"
       k8s_validate_certs: false
 #      tasks_from: certificate-install.yml
 #      tasks_from: certificate-generate.yml
