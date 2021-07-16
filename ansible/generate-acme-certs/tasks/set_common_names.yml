@@ -1,0 +1,25 @@
+---
+- set_fact:
+    a_cns: []
+
+- name: Create common names array
+  set_fact:
+    a_cns: "{{ a_cns + [ item ] }}"
+  loop: "{{ common_names }}"
+
+- name: Show cns
+  debug:
+    msg: "{{ a_cns }}"
+
+- set_fact:
+    cns: " -d \"{{ a_cns | join('\" -d \"') }}\""
+  when: "(a_cns | default([]) | length) > 0"
+
+- set_fact:
+    cns: ""
+  when: "(a_cns | default([]) | length) == 0"
+
+- name: Show cns
+  debug:
+    msg: "{{ cns }}"
+

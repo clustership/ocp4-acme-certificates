@@ -1,0 +1,12 @@
+---
+- name: Create acme.sh directory if it does not exist
+  file:
+    path: "{{ certs_root_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Clone acme.sh git repo
+  git:
+    repo: 'https://github.com/acmesh-official/acme.sh.git'
+    dest: "{{ certs_root_dir }}/acme.sh"
+
